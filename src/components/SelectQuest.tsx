@@ -4,6 +4,7 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,11 +35,16 @@ const FormSchema = z.object({
   }),
 
   questNo: z.any(),
+
+  userName: z.string({
+    required_error: "Please fill your field Username.",
+  }),
 });
 
 export const SelectQuest = () => {
+  const router = useRouter();
   const { toast } = useToast();
-  const { numberQuest, categoryName, setNumberQuest, setCategoryName }: any =
+  const { numberQuest, setNumberQuest, setCategoryName, setUserName }: any =
     useStore();
   const { data: questCategory, isLoading } = useQuery({
     queryKey: ["category"],
@@ -55,12 +61,16 @@ export const SelectQuest = () => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    // toast({
-    //   title: "You submitted the following values:",
-    //   description: "hello",
-    // });
-    console.log("hello");
-    console.log(numberQuest);
+    if (data.questNo >= 20) {
+      setNumberQuest(20);
+    } else {
+      setNumberQuest(data.questNo);
+    }
+
+    setCategoryName(data.category);
+    setUserName(data.userName);
+
+    router.push("/quest");
   }
 
   if (isLoading) return <p>loading..</p>;
@@ -68,21 +78,30 @@ export const SelectQuest = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+        <h1 className="text-3xl font-extrabold">Quiz App</h1>
+        <FormField
+          control={form.control}
+          name="userName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-lg">Your Name</FormLabel>
+              <Input type="text" placeholder="Your name..." {...field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="questNo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Number Questions</FormLabel>
+              <FormLabel className="text-lg">Number of Questions</FormLabel>
               <Input
                 type="number"
-                placeholder="Number Questions"
+                placeholder="Number of Questions (max:20)"
                 min={0}
                 max={20}
                 {...field}
-                onChange={(e) => {
-                  setNumberQuest(Number(e.target.value));
-                }}
               />
               <FormMessage />
             </FormItem>
@@ -100,11 +119,9 @@ export const SelectQuest = () => {
                     <SelectValue placeholder="Select a category quest" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent
-                // onChange={(e) => setCategoryName(e.target.value)}
-                >
+                <SelectContent>
                   {questCategory.map((category: any, index: any) => (
-                    <SelectItem value={category.name} key={index}>
+                    <SelectItem value={String(category.id)} key={index}>
                       {category.name}
                     </SelectItem>
                   ))}

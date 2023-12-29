@@ -1,9 +1,11 @@
-export const getQuestAPI = async () => {
+export const getQuestAPI = async (numberQuest: string, category: string) => {
   await new Promise((resolve) =>
-    setTimeout(resolve, Math.floor(Math.random() * 3000) + 2000)
+    setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000)
   );
 
-  const res = await fetch("https://opentdb.com/api.php?amount=10&category=9");
+  const res = await fetch(
+    `https://opentdb.com/api.php?amount=${numberQuest}&category=${category}`
+  );
   const data = await res.json();
 
   return data.results;
