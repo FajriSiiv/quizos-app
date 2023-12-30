@@ -34,7 +34,9 @@ const FormSchema = z.object({
     required_error: "Please select an category name to display.",
   }),
 
-  questNo: z.any(),
+  questNo: z.any({
+    required_error: "Please fill the field",
+  }),
 
   userName: z.string({
     required_error: "Please fill your field Username.",
@@ -44,8 +46,15 @@ const FormSchema = z.object({
 export const SelectQuest = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const { numberQuest, setNumberQuest, setCategoryName, setUserName }: any =
-    useStore();
+  const {
+    numberQuest,
+    setNumberQuest,
+    setCategoryName,
+    setUserName,
+    correctAnswerUser,
+    incCorrectAnswer,
+    resetCorrectAnswerUser,
+  }: any = useStore();
   const { data: questCategory, isLoading } = useQuery({
     queryKey: ["category"],
     queryFn: getCategoryAPI,
@@ -69,6 +78,14 @@ export const SelectQuest = () => {
 
     setCategoryName(data.category);
     setUserName(data.userName);
+    resetCorrectAnswerUser();
+
+    toast({
+      title: "Thank You",
+      description: `Hi, ${data.userName}.
+      Enjoy the game
+      `,
+    });
 
     router.push("/quest");
   }
@@ -102,6 +119,7 @@ export const SelectQuest = () => {
                 min={0}
                 max={20}
                 {...field}
+                required
               />
               <FormMessage />
             </FormItem>
@@ -134,6 +152,8 @@ export const SelectQuest = () => {
         />
         <Button type="submit">Submit</Button>
       </form>
+      {/* <p>{correctAnswerUser}</p>
+      <Button onClick={incCorrectAnswer}>Correct Answer</Button> */}
     </Form>
   );
 };

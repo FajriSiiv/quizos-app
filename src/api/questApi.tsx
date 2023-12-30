@@ -8,7 +8,30 @@ export const getQuestAPI = async (numberQuest: string, category: string) => {
   );
   const data = await res.json();
 
-  return data.results;
+  const shuffleArray = (array: any) => {
+    return array.sort((a: string, b: string) => {
+      const firstLetterA = a.charAt(0).toLowerCase();
+      const firstLetterB = b.charAt(0).toLowerCase();
+
+      if (firstLetterA < firstLetterB) {
+        return -1;
+      }
+      if (firstLetterA > firstLetterB) {
+        return 1;
+      }
+      return 0;
+    });
+  };
+
+  const shuffledResults = data.results.map((question: any) => {
+    const options = shuffleArray([
+      question.correct_answer,
+      ...question.incorrect_answers,
+    ]);
+    return { ...question, options };
+  });
+
+  return shuffledResults;
 };
 
 export const getCategoryAPI = async () => {

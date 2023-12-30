@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getQuestAPI } from "@/api/questApi";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -8,25 +8,23 @@ import { Label } from "@/components/ui/label";
 import { useStore } from "@/store/store";
 import { ProgressQuestBar } from "@/components/progressQuest";
 import { useRouter } from "next/navigation";
+import ErrorPage from "@/components/error/ErrorPage";
+import { toast } from "@/components/ui/use-toast";
 
-const shuffleArray = (array: any) => {
-  return array.sort((a: string, b: string) => {
-    const firstLetterA = a.charAt(0).toLowerCase();
-    const firstLetterB = b.charAt(0).toLowerCase();
-
-    if (firstLetterA < firstLetterB) {
-      return -1;
-    }
-    if (firstLetterA > firstLetterB) {
-      return 1;
-    }
-    return 0;
-  });
-};
-
-const QuestPart = async () => {
+const QuestPart = () => {
   const router = useRouter();
-  const { numberQuest, categoryName, userName }: any = useStore();
+  const queryClient = useQueryClient();
+
+  const {
+    numberQuest,
+    categoryName,
+    userName,
+    correctAnswerUser,
+    incCorrectAnswer,
+    setNumberQuest,
+    setCategoryName,
+    setUserName,
+  }: any = useStore();
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -35,7 +33,7 @@ const QuestPart = async () => {
   const [progressBar, setProgressBar] = useState(0);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["quest"],
+    queryKey: ["quest", { numberQuest, categoryName }],
     queryFn: () => getQuestAPI(numberQuest, categoryName),
     staleTime: 3600000,
   });
@@ -52,18 +50,36 @@ const QuestPart = async () => {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
     } else {
-      console.log("Quiz completed!");
-      router.push("/");
+      queryClient.invalidateQueries([
+        "quest",
+        { numberQuest, categoryName },
+      ] as any);
+
+      setNumberQuest(null);
+      setCategoryName(null);
+      setUserName(null);
+      setIndicatorAnswer(false);
+      setProgressBar(0);
+
+      toast({
+        title: "Quiz Completed",
+        description: `Thank you. ${userName}`,
+      });
+
+      router.push("/quest/results");
     }
 
     setAnswerSeed((prevState) => [...prevState, selectedAnswer]);
+
+    isCorrect ? incCorrectAnswer() : null;
+
     setIndicatorAnswer(false);
 
     updateProgress(100 / numberQuest);
-
-    alert(
-      `Question ${currentQuestion + 1}: ${isCorrect ? "Correct" : "Incorrect"}`
-    );
+    console.log(correctAnswerUser);
+    // alert(
+    //   `Question ${currentQuestion + 1}: ${isCorrect ? "Correct" : "Incorrect"}`
+    // );
   };
 
   const handleOptionSelect = (option: any) => {
@@ -72,18 +88,20 @@ const QuestPart = async () => {
     console.log(option);
   };
 
-  const options = shuffleArray([
-    data[currentQuestion].correct_answer,
-    ...data[currentQuestion].incorrect_answers,
-  ]);
-
   const updateProgress = (increment: any) => {
     setProgressBar((prevProgress) => Math.min(prevProgress + increment, 100));
   };
+  console.log(data);
+
+  if (data.length === 0) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="flex flex-col  justify-center items-center h-screen gap-5 ">
-      <h2>Name: {userName}</h2>
+      <h2 className="text-2xl font-semibold py-2 px-5 bg-emerald-500 text-white rounded-md">
+        Name: {userName}
+      </h2>
       <ProgressQuestBar progress={progressBar} />
 
       <form
@@ -97,7 +115,7 @@ const QuestPart = async () => {
           {data[currentQuestion].question}
         </p>
         <div className="flex flex-col gap-2">
-          {options.map((option: any, index: any) => (
+          {data[currentQuestion].options.map((option: any, index: any) => (
             <div className="flex items-center space-x-2" key={index}>
               <input
                 type="radio"

@@ -1,6 +1,7 @@
 import MainLayout from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-dark";
 import { ModeToggle } from "@/components/toggleDark";
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
@@ -35,6 +36,7 @@ export default function RootLayout({
               <ModeToggle />
             </div>
             {children}
+            <Toaster />
           </MainLayout>
         </ThemeProvider>
       </body>
