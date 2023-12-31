@@ -94,19 +94,19 @@ const QuestPart = () => {
 
   return (
     <div className="flex flex-col  justify-center items-center h-screen gap-5 ">
-      <h2 className="text-2xl font-semibold py-2 px-5 bg-emerald-500 text-white rounded-md">
+      <h2 className="text-2xl font-semibold py-2 px-5 bg-emerald-500 text-white rounded-md max-md:text-sm">
         Name: {userName}
       </h2>
       <ProgressQuestBar progress={progressBar} />
 
       <form
         onSubmit={handleAnswerSubmit}
-        className="border p-5 rounded-sm flex flex-col gap-2 max-w-[50%]"
+        className="border p-5 rounded-sm flex flex-col gap-2 max-w-[50%] max-md:max-w-full max-sm:mx-3"
       >
-        <h2 className="text-base font-semibold  ">
+        <h2 className="text-base font-semibold max-md:text-sm ">
           Question #{currentQuestion + 1}
         </h2>
-        <p className="text-3xl font-bold mb-3">
+        <p className="text-3xl font-bold mb-3 max-md:text-lg">
           {data[currentQuestion].question}
         </p>
         <div className="flex flex-col gap-2">
@@ -126,7 +126,7 @@ const QuestPart = () => {
                   selectedAnswer === option
                     ? "bg-emerald-500 text-white "
                     : "bg-white "
-                } text-lg cursor-pointer px-2 py-1 rounded-md w-full font-semibold  dark:text-primary-foreground shadow-md `}
+                } text-lg cursor-pointer px-2 py-1 rounded-md w-full font-semibold  dark:text-primary-foreground shadow-md max-md:text-sm`}
               >
                 {option}
               </Label>
