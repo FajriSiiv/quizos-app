@@ -10,6 +10,7 @@ import { ProgressQuestBar } from "@/components/progressQuest";
 import { useRouter } from "next/navigation";
 import ErrorPage from "@/components/error/ErrorPage";
 import { toast } from "@/components/ui/use-toast";
+import LoadingComponent from "@/components/loading";
 
 const QuestPart = () => {
   const router = useRouter();
@@ -39,7 +40,7 @@ const QuestPart = () => {
   });
 
   if (isLoading) {
-    return <p>Loading..</p>;
+    return <LoadingComponent />;
   }
 
   const handleAnswerSubmit = (e: React.FormEvent) => {
@@ -76,22 +77,16 @@ const QuestPart = () => {
     setIndicatorAnswer(false);
 
     updateProgress(100 / numberQuest);
-    console.log(correctAnswerUser);
-    // alert(
-    //   `Question ${currentQuestion + 1}: ${isCorrect ? "Correct" : "Incorrect"}`
-    // );
   };
 
   const handleOptionSelect = (option: any) => {
     setSelectedAnswer(option);
     setIndicatorAnswer(true);
-    console.log(option);
   };
 
   const updateProgress = (increment: any) => {
     setProgressBar((prevProgress) => Math.min(prevProgress + increment, 100));
   };
-  console.log(data);
 
   if (data.length === 0) {
     return <ErrorPage />;

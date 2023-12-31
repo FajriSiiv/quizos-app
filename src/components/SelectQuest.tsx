@@ -28,6 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCategoryAPI } from "@/api/questApi";
 import { Input } from "./ui/input";
 import { useStore } from "@/store/store";
+import LoadingComponent from "./loading";
 
 const FormSchema = z.object({
   category: z.string({
@@ -90,7 +91,7 @@ export const SelectQuest = () => {
     router.push("/quest");
   }
 
-  if (isLoading) return <p>loading..</p>;
+  if (isLoading) return <LoadingComponent />;
 
   return (
     <Form {...form}>

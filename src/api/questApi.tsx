@@ -1,6 +1,6 @@
 export const getQuestAPI = async (numberQuest: string, category: string) => {
   await new Promise((resolve) =>
-    setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000)
+    setTimeout(resolve, Math.floor(Math.random() * 4000) + 2000)
   );
 
   const res = await fetch(
